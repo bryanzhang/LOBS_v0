@@ -82,12 +82,12 @@ def prune_fcn_layer(layer, count):
 
 def optimal_brain_surgeon(layer, indices, h_block, hpinv_block):
     flat_weight = layer.weight.flatten()
-    print("Sample weight:", flat_weight[375129])
+    #print("Sample weight:", flat_weight[375129])
     prune_mask = torch.zeros(layer.in_features * layer.out_features, dtype=torch.bool)
     prune_mask.index_fill_(0, indices, True)
 
     flat_weight = flat_weight.unsqueeze(1)
-    print("Sample weight2:", flat_weight[375129][0])
+    #print("Sample weight2:", flat_weight[375129][0])
 
     accum_factor_vector = torch.zeros((layer.in_features * layer.out_features, 1), dtype=torch.float)
     for pos in indices:
@@ -95,6 +95,7 @@ def optimal_brain_surgeon(layer, indices, h_block, hpinv_block):
        val = get_element_from_horpinv(h_block, pos, pos) * flat_weight[pos][0]
        #print("val: ", val, "pos:", pos, "elem:", get_element_from_horpinv(h_block, pos, pos), "w:", flat_weight[pos][0])
        accum_factor_vector[pos][0] = val
+    print(accum_factor_vector)
     original_delta = (-1) * custom_kernels.hessianorpinv_matmul_vector(hpinv_block, accum_factor_vector, layer.out_features)
     w = flat_weight + original_delta
     prune_mask = prune_mask.unsqueeze(1)
